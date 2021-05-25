@@ -24,3 +24,8 @@ The login and signup routes return a token which is needed to access all subsequ
 
 ``` /user/posts/:postId ```: This routes provides the post of requested post id
 
+Requirements
+
+Enviroment variables
+1. JWT_SECRET
+2. MONGO_DB

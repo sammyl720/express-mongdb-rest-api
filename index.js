@@ -17,7 +17,7 @@ const PORT = process.env.PORT || 8000;
 
 app.use(express.json())
 app.get('/', (req, res) => {
-  return res.json({ message: 'Hello' })
+  return res.json({ message: 'Hello and Welcome to social network' })
 })
 
 app.use('/user', router)

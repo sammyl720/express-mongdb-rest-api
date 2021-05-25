@@ -1,12 +1,10 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs')
-const requireAuth = require('./middleware/requireAuth');
 const router = require('./routes/userRoutes');
 const User = require('./models/user');
-const { emailRegex, passwordRegex } = require('./utils/regexs');
 const requireValidLogin = require('./middleware/requireValidLogin');
+const createToken = require('./utils/createToken');
 
 if(process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
@@ -35,9 +33,10 @@ app.post('/login', requireValidLogin, async (req, res) => {
   if(!correctPassword) {
     return res.json({ message: 'Invalid Credentails', status: 'failure' });
   }
-  let token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET)
+  let token = createToken(user._id);
   return res.json({ message: 'Succesfully signed in. Please send along the attached token with authorization header. Authorization: Bearer <token>', status: "success", token })
 })
+
 
 app.post('/signup', requireValidLogin, async (req, res) => {
   const { email, password } = req.body;
@@ -51,14 +50,10 @@ app.post('/signup', requireValidLogin, async (req, res) => {
   const newUser = await User({ email: email, password: hash });
   await newUser.save();
   console.log(newUser._id)
-  const token = jwt.sign({ userId: newUser._id}, process.env.JWT_SECRET)
+  const token = createToken(user._id);
   return res.json({ message: 'Succesfully signed up. Please send along the attached token with authorization header. Authorization: Bearer <token>', status: "success", token })
 })
-app.get('/logout', (req, res) => {
-  const decoded = jwt.verify("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIxMzIsImlhdCI6MTYyMTg5MTk4MX0.qctTtpxqG8MqvQl3lrx8Jf_VIkJF5ckFfyCndMAxdUE", process.env.JWT_SECRET)
 
-  return res.json({ decoded })
-})
 app.listen(PORT, async () => {
   console.log(`Server started on port ${PORT}`);
     await mongoose.connect(process.env.MONGO_DB, {
